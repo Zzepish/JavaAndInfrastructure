@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  java17:
+    build:
+      context: ./ServerServices/java17
+      dockerfile: .Dockerfile
+    volumes:
+      - ./ServerServices/java17/entrypoint.sh:/entrypoint.sh
+      - ./apps:/apps
+    entrypoint: /entrypoint.sh
