@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,11 +43,42 @@ public class AccountController {
         } catch (Exception exception) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseDTO(HttpStatus.BAD_REQUEST.toString(), exception.getMessage()));
+                    .body(new ResponseDTO(HttpStatus.BAD_REQUEST.toString(), exception.getMessage(), LocalDateTime.now()));
         }
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDTO(HttpStatus.CREATED.toString(), "CREATED"));
+                .body(new ResponseDTO(HttpStatus.CREATED.toString(), "CREATED", LocalDateTime.now()));
     }
 
+    @GetMapping("/customer/{mobileNumber}")
+    public ResponseEntity<CustomerDTO> getAccountDetails(@PathVariable String mobileNumber)
+    {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(this.accountService.fetchAccount(mobileNumber));
+    }
+
+    @PatchMapping
+    public ResponseEntity<ResponseDTO> update(@RequestBody CustomerDTO customerDTO)
+    {
+        boolean isUpdated = this.accountService.updateAccount(customerDTO);
+        if (isUpdated) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ResponseDTO(HttpStatus.OK.toString(), "Updated", LocalDateTime.now()));
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ResponseDTO(HttpStatus.BAD_REQUEST.toString(), "Bad request", LocalDateTime.now()));
+    }
+
+    @DeleteMapping("/{mobileNumber}")
+    public ResponseEntity<ResponseDTO> delete(@PathVariable String mobileNumber)
+    {
+        this.accountService.deleteAccount(mobileNumber);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(new ResponseDTO(HttpStatus.NO_CONTENT.toString(), "Deleted", LocalDateTime.now()));
+    }
 }
